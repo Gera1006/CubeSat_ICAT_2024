@@ -1,0 +1,57 @@
+import dht
+import machine
+import time
+
+# Configuración del sensor DHT22
+pin = machine.Pin(15)  # Pin GPIO donde está conectado el sensor (cámbialo según tu conexión)
+sensor = dht.DHT22(pin)
+
+# Ajustes de calibración
+# Estos valores se ajustan dependiendo de la diferencia observada en las mediciones comparadas con el dispositivo de referencia
+calibracion_temperatura = 0.0  # Ajuste de temperatura (en grados Celsius)
+calibracion_humedad = 0.0      # Ajuste de humedad (en porcentaje)
+
+def leer_dht22():
+    try:
+        # Leer los datos de temperatura y humedad
+        sensor.measure()
+        temperatura = sensor.temperature()
+        humedad = sensor.humidity()
+
+        # Aplicar calibración
+        temperatura_calibrada = temperatura + calibracion_temperatura
+        humedad_calibrada = humedad + calibracion_humedad
+        return temperatura_calibrada, humedad_calibrada
+
+    except OSError as e:
+        print("Error al leer el sensor:", e)
+        return None, None
+
+def calibrar_sensor(referencia_temperatura, referencia_humedad):
+    global calibracion_temperatura, calibracion_humedad
+    # Leer los valores actuales del sensor
+    temperatura, humedad = leer_dht22()
+
+    if temperatura is not None and humedad is not None:
+        # Calcular los ajustes necesarios basados en el dispositivo de referencia
+        calibracion_temperatura = referencia_temperatura - temperatura
+        calibracion_humedad = referencia_humedad - humedad
+        print(f"Calibración ajustada: Temperatura {calibracion_temperatura} °C, Humedad {calibracion_humedad} %")
+    else:
+        print("No se pudo calibrar el sensor debido a una lectura incorrecta.")
+
+if __name__ == "__main__":
+    # Ejemplo de referencia: datos de temperatura y humedad de un dispositivo confiable
+    referencia_temperatura = 25.0  # Valor de temperatura en grados Celsius del dispositivo de referencia
+    referencia_humedad = 60.0      # Valor de humedad en porcentaje del dispositivo de referencia
+
+    # Calibrar el sensor
+    calibrar_sensor(referencia_temperatura, referencia_humedad)
+
+    # Leer los valores calibrados
+    while True:
+        temperatura, humedad = leer_dht22()
+        if temperatura is not None and humedad is not None:
+            print(f"Temperatura calibrada: {temperatura:.2f} °C")
+            print(f"Humedad calibrada: {humedad:.2f} %")
+        time.sleep(2)
