@@ -1,0 +1,52 @@
+from machine import I2C, Pin
+import time
+
+# Dirección I2C del ISL29125
+ISL29125_ADDR = 0x44
+
+# Registros del ISL29125
+REG_CONFIG_1 = 0x01
+REG_CONFIG_2 = 0x02
+REG_GREEN_L = 0x09  # Registro de datos del canal verde (parte baja)
+REG_GREEN_H = 0x0A  # Registro de datos del canal verde (parte alta)
+REG_RED_L = 0x07    # Registro de datos del canal rojo (parte baja)
+REG_RED_H = 0x08    # Registro de datos del canal rojo (parte alta)
+REG_BLUE_L = 0x0B   # Registro de datos del canal azul (parte baja)
+REG_BLUE_H = 0x0C   # Registro de datos del canal azul (parte alta)
+
+# Configuraciones para modo RGB
+RGB_MODE = 0x05  # Modo RGB en el registro de configuración 1
+
+# Configuración de I2C (pines GP0 y GP1 de la Raspberry Pi Pico)
+i2c = I2C(0, scl=Pin(1), sda=Pin(0), freq=400000)
+
+# Función para escribir en un registro del sensor
+def write_register(register, value):
+    i2c.writeto_mem(ISL29125_ADDR, register, bytes([value]))
+
+# Función para leer 2 bytes de un registro
+def read_register_2bytes(register):
+    data = i2c.readfrom_mem(ISL29125_ADDR, register, 2)
+    return data[0] | (data[1] << 8)
+
+# Inicializar el sensor ISL29125
+def init_isl29125():
+    # Configurar el sensor en modo RGB
+    write_register(REG_CONFIG_1, RGB_MODE)
+    time.sleep(0.1)  # Pequeño retraso para estabilizar
+
+# Leer valores de luz roja, verde y azul
+def read_rgb():
+    green = read_register_2bytes(REG_GREEN_L)
+    red = read_register_2bytes(REG_RED_L)
+    blue = read_register_2bytes(REG_BLUE_L)
+    return red, green, blue
+
+# Inicializamos el sensor
+init_isl29125()
+
+# Bucle principal para leer y mostrar los valores RGB
+while True:
+    red, green, blue = read_rgb()
+    print("Red: {}, Green: {}, Blue: {}".format(red, green, blue))
+    time.sleep(1)
