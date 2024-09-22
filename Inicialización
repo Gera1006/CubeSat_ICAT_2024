@@ -1,0 +1,21 @@
+import dht
+import machine
+
+# Configuración del pin GPIO donde está conectado el DHT22
+pin = machine.Pin(15)  # Cambia el número de pin según tu conexión
+sensor = dht.DHT22(pin)
+
+def inicializar_dht22():
+    try:
+        # Leer los datos del sensor (temperatura y humedad)
+        sensor.measure()
+        temperatura = sensor.temperature()
+        humedad = sensor.humidity()
+
+        print(f"Temperatura: {temperatura:.2f} °C")
+        print(f"Humedad: {humedad:.2f} %")
+    except OSError as e:
+        print("Error al inicializar el sensor:", e)
+
+# Llamada a la función de inicialización
+inicializar_dht22()
