@@ -1,0 +1,83 @@
+from machine import I2C, Pin
+import time
+
+# Dirección I2C del ISL29125
+ISL29125_ADDR = 0x44
+
+# Registros del ISL29125
+REG_CONFIG_1 = 0x01
+REG_CONFIG_2 = 0x02
+REG_GREEN_L = 0x09  # Registro de datos del canal verde (parte baja)
+REG_GREEN_H = 0x0A  # Registro de datos del canal verde (parte alta)
+REG_RED_L = 0x07    # Registro de datos del canal rojo (parte baja)
+REG_RED_H = 0x08    # Registro de datos del canal rojo (parte alta)
+REG_BLUE_L = 0x0B   # Registro de datos del canal azul (parte baja)
+REG_BLUE_H = 0x0C   # Registro de datos del canal azul (parte alta)
+
+# Configuraciones para modo RGB y rangos de sensibilidad
+RGB_MODE = 0x05  # Modo RGB
+LOW_RANGE = 0x00  # Sensibilidad baja (0-375 lux)
+HIGH_RANGE = 0x10  # Sensibilidad alta (0-10000 lux)
+
+# Configuración de I2C (pines GP0 y GP1 de la Raspberry Pi Pico)
+i2c = I2C(0, scl=Pin(1), sda=Pin(0), freq=400000)
+
+# Función para escribir en un registro del sensor
+def write_register(register, value):
+    i2c.writeto_mem(ISL29125_ADDR, register, bytes([value]))
+
+# Función para leer 2 bytes de un registro
+def read_register_2bytes(register):
+    data = i2c.readfrom_mem(ISL29125_ADDR, register, 2)
+    return data[0] | (data[1] << 8)
+
+# Inicializar el sensor ISL29125 con rango bajo (ajustar según sea necesario)
+def init_isl29125():
+    # Configurar el sensor en modo RGB y rango bajo para medir lux bajos
+    write_register(REG_CONFIG_1, RGB_MODE | LOW_RANGE)
+    time.sleep(0.1)  # Esperar para estabilizar
+
+# Calibrar el sensor
+def calibrate_isl29125():
+    print("Iniciando calibración...")
+
+    # Realizar varias lecturas para obtener un promedio
+    num_samples = 50
+    red_total, green_total, blue_total = 0, 0, 0
+
+    for i in range(num_samples):
+        red = read_register_2bytes(REG_RED_L)
+        green = read_register_2bytes(REG_GREEN_L)
+        blue = read_register_2bytes(REG_BLUE_L)
+
+        red_total += red
+        green_total += green
+        blue_total += blue
+        time.sleep(0.1)  # Retardo entre muestras
+
+    # Calcular el promedio
+    red_avg = red_total // num_samples
+    green_avg = green_total // num_samples
+    blue_avg = blue_total // num_samples
+
+    print("Calibración completada.")
+    print("Valores promedio:")
+    print("Rojo: {}".format(red_avg))
+    print("Verde: {}".format(green_avg))
+    print("Azul: {}".format(blue_avg))
+
+    # Aquí puedes ajustar los valores de calibración según las lecturas promedio
+    # y almacenarlos para utilizarlos en futuras mediciones.
+    return red_avg, green_avg, blue_avg
+
+# Inicializar y calibrar el sensor
+init_isl29125()
+calibrate_isl29125()
+
+# Bucle principal para mostrar las lecturas corregidas
+while True:
+    red, green, blue = read_register_2bytes(REG_RED_L), read_register_2bytes(REG_GREEN_L), read_register_2bytes(REG_BLUE_L)
+    
+    # Aquí puedes aplicar las correcciones basadas en los valores promedio de la calibración
+    print("Rojo: {}, Verde: {}, Azul: {}".format(red, green, blue))
+    time.sleep(1)
