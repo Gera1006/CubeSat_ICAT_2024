@@ -1,0 +1,7 @@
+# Ignorar archivos de compilación y temporales
+build/
+*.uf2
+*.bin
+*.hex
+*.o
+*.log
