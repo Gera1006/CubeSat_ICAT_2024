@@ -6,15 +6,13 @@ project(dht22_project)
 pico_sdk_init()
 
 add_executable(dht22
-    dht22.c
+    dht22_config.c
+    dht22_ejemplo.c
 )
 
-# Include standard and hardware libraries
-target_link_libraries(dht22 pico_stdlib hardware_gpio)
+target_link_libraries(dht22 pico_stdlib)
 
-# Enable USB output, disable UART output
 pico_enable_stdio_usb(dht22 1)
 pico_enable_stdio_uart(dht22 0)
 
-# Create additional outputs (UF2, bin, hex)
 pico_add_extra_outputs(dht22)

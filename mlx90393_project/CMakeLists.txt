@@ -6,7 +6,8 @@ project(mlx90393_project)
 pico_sdk_init()
 
 add_executable(mlx90393
-    mlx90393.c
+    mlx90393_config.c
+    mlx90393_ejemplo.c
 )
 
 target_link_libraries(mlx90393 pico_stdlib hardware_i2c)

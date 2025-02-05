@@ -6,7 +6,8 @@ project(isl29125_project)
 pico_sdk_init()
 
 add_executable(isl29125
-    isl29125.c
+    isl29125_config.c
+    isl29125_ejemplo.c
 )
 
 target_link_libraries(isl29125 pico_stdlib hardware_i2c)

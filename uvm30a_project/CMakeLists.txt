@@ -6,10 +6,11 @@ project(uvm30a_project)
 pico_sdk_init()
 
 add_executable(uvm30a
-    uvm30a.c
+    uvm30a_config.c
+    uvm30a_ejemplo.c
 )
 
-target_link_libraries(uvm30a pico_stdlib hardware_adc)
+target_link_libraries(uvm30a pico_stdlib)
 
 pico_enable_stdio_usb(uvm30a 1)
 pico_enable_stdio_uart(uvm30a 0)

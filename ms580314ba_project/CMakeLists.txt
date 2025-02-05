@@ -5,8 +5,9 @@ project(ms580314ba_project)
 
 pico_sdk_init()
 
-add_executable(ms580314b
-    ms580314ba.c
+add_executable(ms580314ba
+    ms580314ba_config.c
+    ms580314ba_ejemplo.c
 )
 
 target_link_libraries(ms580314ba pico_stdlib hardware_i2c)

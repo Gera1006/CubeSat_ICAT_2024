@@ -6,7 +6,8 @@ project(mpu9250_project)
 pico_sdk_init()
 
 add_executable(mpu9250
-    mpu9250.c
+    mpu9250_config.c
+    mpu9250_ejemplo.c
 )
 
 target_link_libraries(mpu9250 pico_stdlib hardware_i2c)

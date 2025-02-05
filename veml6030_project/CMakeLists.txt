@@ -6,7 +6,8 @@ project(veml6030_project)
 pico_sdk_init()
 
 add_executable(veml6030
-    veml6030.c
+    veml6030_config.c
+    veml6030_ejemplo.c
 )
 
 target_link_libraries(veml6030 pico_stdlib hardware_i2c)

@@ -6,7 +6,8 @@ project(maxm10s_project)
 pico_sdk_init()
 
 add_executable(maxm10s
-    maxm10s.c
+    max_m10s_config.c
+    max_m10s_ejemplo.c
 )
 
 target_link_libraries(maxm10s pico_stdlib hardware_uart)
